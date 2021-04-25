@@ -39,6 +39,7 @@ const start = () => {
                 break;
             case "Add department":
                 console.log("adding departments!")
+                addDepartment()
                 break;
             case "Add role":
                 console.log("adding roles!")
@@ -91,7 +92,7 @@ const viewRoles = () => {
 
 const viewEmployees = () => {
     //view employee table
-    connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name FROM employee 
+    connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name, employee.manager_id AS manager FROM employee 
     JOIN role ON employee.role_id = role.id
     JOIN department ON role.department_id = department.id;`, (err, data) => {
         if (err) {
@@ -100,6 +101,74 @@ const viewEmployees = () => {
             console.table(data);
             start()
         }
+    })
+}
+
+const addDepartment = () => {
+    inquirer.prompt({
+        name: "department",
+        type: "input",
+        message: "What is the new department's name?"
+    }).then(answers => {
+        connection.query(`INSERT INTO department (name)
+        VALUES (?);`, answers.department, (err) => {
+            if (err) {
+                throw err
+            } else {
+                console.log("Department successfully added")
+                viewDepartments()
+                start()
+            }
+        })
+    })
+}
+
+const addEmployee = () => {
+    inquirer.prompt([
+        {
+            name: "firstName",
+            type: "input",
+            message: "What is the employee's first name?"
+        },
+        {
+            name: "lastName",
+            type: "input",
+            message: "What is the employee's last name?"
+        },
+        {
+            name: "role",
+            type: "list",
+            message: "What is the employee's role?",
+            choices() {
+                const choiceArray = [];
+                results.forEach(({ title }) => {
+                    choiceArray.push(title);
+                });
+                return choiceArray;
+            },
+        },
+        {
+            name: "manager",
+            type: "list",
+            message: "Who is the employee's manager?",
+            choices() {
+                const choiceArray = ['None'];
+                results.forEach(({ name }) => {
+                    choiceArray.push(name);
+                });
+                return choiceArray;
+            },
+        },
+    ]).then(answers => {
+        connection.query(
+            `INSERT INTO empolyee (first_name, last_name, role_id, manager_id) 
+            VALUES (? ? ? ?);`,
+            [answers.firstName, answers.lastName, answers.role, answers.manager],
+            (err) => {
+                if (err) throw err;
+                console.log('Employee successfully added');
+                start();
+            })
     })
 }
 

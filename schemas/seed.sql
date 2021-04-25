@@ -4,13 +4,22 @@ INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Aurora", "Duncan", 1, 2);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Robin", "Stonewing", 3, 4);
-
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Miriam", "Giada", 5, 6);
+VALUES ("Miriam", "Giada", 2, 1);
 
 INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Amaya", "Baenoth", 7);
+VALUES ("Amaya", "Baenoth", 3);
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Robin", "Stonewing", 4, 3);
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Eryn", "Grayshard", 5, 4);
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Lyris", "Fadove", 6, 5);
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Miles", "Elrie", 1, 6);
 
 INSERT INTO role (title, salary, department_id)
 VALUES ("Sales Lead", 100000, 1);
