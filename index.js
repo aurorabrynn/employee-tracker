@@ -19,20 +19,23 @@ const start = () => {
     inquirer.prompt([
         {
             name: "choice",
-            choices: ["View department", "View role", "View employee", "Add department", "Add role", "Add employee", "Update department", "Update role", "Update employee", "Quit"],
+            choices: ["View departments", "View roles", "View employees", "Add department", "Add role", "Add employee", "Update departments", "Update roles", "Update employees", "Quit"],
             message: "What do you want to do?",
             type: "list"
         }
     ]).then(answers => {
         switch (answers.choice) {
-            case "View department":
+            case "View departments":
                 console.log("viewing departments!")
+                viewDepartments()
                 break;
-            case "View role":
+            case "View roles":
                 console.log("viewing roles!")
+                viewRoles()
                 break;
-            case "View employee":
+            case "View employees":
                 console.log("viewing employees!")
+                viewEmployees()
                 break;
             case "Add department":
                 console.log("adding departments!")
@@ -43,13 +46,13 @@ const start = () => {
             case "Add employee":
                 console.log("adding employees!")
                 break;
-            case "Update department":
+            case "Update departments":
                 console.log("updating departments!")
                 break;
-            case "Update role":
+            case "Update roles":
                 console.log("updating roles!")
                 break;
-            case "Update employee":
+            case "Update employees":
                 console.log("updating employees!")
                 break;
 
@@ -61,24 +64,40 @@ const start = () => {
     })
 }
 
-const artistSearch = () => {
-    //need to ask user for an artist name
-    inquirer.prompt({
-        name: "artist",
-        type: "input",
-        message: "which artist?"
-    }).then(answers => {
-        connection.query(`SELECT * FROM top1000songs WHERE artist = ?`, answers.artist, (err, data) => {
-            if (err) {
-                throw err
-            } else {
-                console.table(data);
-                start()
-            }
-        })
+const viewDepartments = () => {
+    //view department table
+    connection.query(`SELECT * FROM department`, (err, data) => {
+        if (err) {
+            throw err
+        } else {
+            console.table(data);
+            start()
+        }
     })
-    //query db for selected artist
-    //start over
+}
+
+const viewRoles = () => {
+    //view role table
+    connection.query(`SELECT * FROM role`, (err, data) => {
+        if (err) {
+            throw err
+        } else {
+            console.table(data);
+            start()
+        }
+    })
+}
+
+const viewEmployees = () => {
+    //view employee table
+    connection.query(`SELECT * FROM employee`, (err, data) => {
+        if (err) {
+            throw err
+        } else {
+            console.table(data);
+            start()
+        }
+    })
 }
 
 connection.connect((err) => {
