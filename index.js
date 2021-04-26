@@ -76,7 +76,7 @@ const viewDepartments = () => {
 
 const viewRoles = () => {
     //view role table
-    connection.query(`SELECT role.id, role.title, role.salary, department.name FROM role
+    connection.query(`SELECT role.id, role.title, role.salary, department.name AS department FROM role
     JOIN department ON role.department_id = department.id;`, (err, data) => {
         if (err) {
             throw err
@@ -149,19 +149,28 @@ const addRole = () => {
             }
         ]).then(answers => {
             //answers.dep needs to connect to department_id
-            connection.query(`INSERT INTO role (title, salary, department_id)
-            VALUES (?, ?, ?)`, [answers.title, answers.salary, results.id], (err) => {
+            connection.query(`SELECT id FROM department WHERE name=?`, answers.dep, (err, data) => {
                 if (err) {
                     throw err
                 } else {
-                    console.log("Role successfully added")
-                    viewRoles()
-                    start()
+                    let bar = JSON.stringify(data[0].id)
+                    connection.query(`INSERT INTO role (title, salary, department_id)
+                    VALUES (?, ?, ?)`, [answers.title, answers.salary, bar], (err) => {
+                        if (err) {
+                            throw err
+                        } else {
+                            console.log("Role successfully added")
+                            viewRoles()
+                            start()
+                        }
+                    })
                 }
             })
         })
     })
 }
+
+
 
 const addEmployee = () => {
     connection.query(`SELECT * FROM employee, role;`, (err, results) => {
@@ -205,18 +214,34 @@ const addEmployee = () => {
             if (answers.manager === 'None') {
                 answers.manager === 'null'
             }
-            //answers.role needs to connect to role_id
-            //answers.manager needs to connect to manager_id
-            connection.query(
-                `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
-            VALUES (? ? ? ?);`,
-                [answers.firstName, answers.lastName, answers.role, answers.manager],
-                (err) => {
-                    if (err) throw err;
-                    console.log('Employee successfully added');
-                    viewEmployees()
-                    start();
-                })
+            console.log(answers.manager);
+            connection.query(`SELECT id FROM role WHERE title=?`, answers.role, (err, data) => {
+                if (err) {
+                    throw err
+                } else {
+                    let foo = JSON.stringify(data[0].id)
+                    connection.query(`SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`, answers.manager, (err, data) => {
+                        if (err) {
+                            throw err
+                        } else {
+                            let bar = JSON.stringify(data[0].id)
+                            //answers.manager needs to connect to manager_id
+                            connection.query(
+                                `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
+                            VALUES (? ? ? ?);`,
+                                [answers.firstName, answers.lastName, foo, bar],
+                                (err) => {
+                                    if (err) throw err;
+                                    console.log('Employee successfully added');
+                                    viewEmployees()
+                                    start();
+                                }
+                            )
+                        }
+                    })
+
+                }
+            })
         })
     })
 }
@@ -251,15 +276,30 @@ const updateRoles = () => {
             }
         ]).then(answers => {
             //answers.role needs to connect to role_id
-            //answers.name needs to connect to id
-            connection.query(
-                `UPDATE employee SET role = ? WHERE id = ?`,
-                [answers.role, answers.name],
-                (err) => {
-                    if (err) throw err;
-                    console.log('Role successfully updated');
-                    start();
-                })
+            connection.query(`SELECT id FROM role WHERE title=?`, answers.role, (err, data) => {
+                if (err) {
+                    throw err
+                } else {
+                    let foo = JSON.stringify(data[0].id)
+                    console.log(foo)
+                    //answers.name needs to connect to id
+                    connection.query(`SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`, answers.manager, (err, data) => {
+                        if (err) {
+                            throw err
+                        } else {
+                            let bar = JSON.stringify(data[0].id)
+                            connection.query(
+                                `UPDATE employee SET role = ? WHERE id = ?`,
+                                [foo, bar],
+                                (err) => {
+                                    if (err) throw err;
+                                    console.log('Role successfully updated');
+                                    start();
+                                })
+                        }
+                    })
+                }
+            })
         })
     })
 }
