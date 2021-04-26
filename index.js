@@ -89,9 +89,10 @@ const viewRoles = () => {
 
 const viewEmployees = () => {
     //view employee table
-    connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name, employee.manager_id AS manager FROM employee 
-    JOIN role ON employee.role_id = role.id
-    JOIN department ON role.department_id = department.id;`, (err, data) => {
+    connection.query(`SELECT a.id, a.first_name, a.last_name, role.title, role.salary, department.name AS department, CONCAT(b.first_name, ' ', b.last_name) AS manager FROM employee a
+        LEFT JOIN employee b ON a.manager_id = b.id
+        JOIN role ON a.role_id = role.id
+        JOIN department ON role.department_id = department.id;`, (err, data) => {
         if (err) {
             throw err
         } else {
@@ -198,7 +199,7 @@ const addEmployee = () => {
                         choiceArray.push(`${first_name} ${last_name}`);
                     });
                     return choiceArray;
-                },
+                }, //if none, manager_id = null
             },
         ]).then(answers => {
             //answers.role needs to connect to role_id
@@ -210,6 +211,7 @@ const addEmployee = () => {
                 (err) => {
                     if (err) throw err;
                     console.log('Employee successfully added');
+                    viewEmployees()
                     start();
                 })
         })
@@ -248,8 +250,7 @@ const updateRoles = () => {
             //answers.role needs to connect to role_id
             //answers.name needs to connect to id
             connection.query(
-                `UPDATE employee SET role = ? WHERE id = ?
-            VALUES (? ? ? ?);`,
+                `UPDATE employee SET role = ? WHERE id = ?`,
                 [answers.role, answers.name],
                 (err) => {
                     if (err) throw err;
