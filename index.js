@@ -199,9 +199,12 @@ const addEmployee = () => {
                         choiceArray.push(`${first_name} ${last_name}`);
                     });
                     return choiceArray;
-                }, //if none, manager_id = null
+                },
             },
         ]).then(answers => {
+            if (answers.manager === 'None') {
+                answers.manager === 'null'
+            }
             //answers.role needs to connect to role_id
             //answers.manager needs to connect to manager_id
             connection.query(
