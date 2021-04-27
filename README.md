@@ -6,7 +6,7 @@ I made an employee tracker. If you have a lot of employees, their roles and who 
 I learned how to string together different connection.queries and was able solidify how to use SQL in my head.
 
 ## Video
-![Video Walkthrough]()
+![Video Walkthrough](https://drive.google.com/file/d/1gximjoKJrrrB3AGf3weoTiZUi4BbQ2r6/view)
 *Note: My personal computer has a strange memory bug with MySQL, causing node to repeat questions and answers, hence why I kill the terminal periodically. This may or may not happen on your device.
 
 ## Link
