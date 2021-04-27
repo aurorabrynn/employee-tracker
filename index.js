@@ -21,7 +21,7 @@ const start = () => {
     inquirer.prompt([
         {
             name: "choice",
-            choices: ["View departments", "View roles", "View employees", "Add department", "Add role", "Add employee", "Update roles", "Quit"],
+            choices: ["View departments", "View roles", "View employees", "Add department", "Add role", "Add employee", "Update roles", "Delete department", "Delete role", "Delete employee", "Quit"],
             message: "What do you want to do?",
             type: "list"
         }
@@ -54,6 +54,18 @@ const start = () => {
             case "Update roles":
                 console.log("updating roles!")
                 updateRoles()
+                break;
+            case "Delete department":
+                console.log("deleting departments!")
+                deleteDepartment()
+                break;
+            case "Delete role":
+                console.log("deleting roles!")
+                deleteRole()
+                break;
+            case "Delete employee":
+                console.log("deleting employees!")
+                deleteEmployee()
                 break;
 
             default:
@@ -311,6 +323,91 @@ const updateRoles = () => {
             })
     })
 }
+
+const deleteDepartment = () => {
+    connection.query(`SELECT * FROM department`, (err, results) => {
+        if (err) throw err;
+        inquirer.prompt({
+            name: "department",
+            type: "list",
+            message: "Which department do you want to delete?",
+            choices() {
+                const choiceArray = [];
+                results.forEach(({ name }) => {
+                    choiceArray.push(name);
+                });
+                return choiceArray;
+            }
+        }).then(answers => {
+            connection.query(`DELETE FROM department WHERE name=?`, answers.department, (err) => {
+                if (err) {
+                    throw err
+                } else {
+                    console.log("Department successfully deleted")
+                    viewDepartments()
+                    start()
+                }
+            })
+        })
+    })
+}
+
+const deleteRole = () => {
+    connection.query(`SELECT * FROM role`, (err, results) => {
+        if (err) throw err;
+        inquirer.prompt({
+            name: "role",
+            type: "list",
+            message: "Which role do you want to delete?",
+            choices() {
+                const choiceArray = [];
+                results.forEach(({ title }) => {
+                    choiceArray.push(title);
+                });
+                return choiceArray;
+            }
+        }).then(answers => {
+            connection.query(`DELETE FROM role WHERE title=?`, answers.role, (err) => {
+                if (err) {
+                    throw err
+                } else {
+                    console.log("Role successfully deleted")
+                    viewRoles()
+                    start()
+                }
+            })
+        })
+    })
+}
+
+const deleteEmployee = () => {
+    connection.query(`SELECT * FROM employee`, (err, results) => {
+        if (err) throw err;
+        inquirer.prompt({
+            name: "employee",
+            type: "list",
+            message: "Which employee do you want to delete?",
+            choices() {
+                const choiceArray = [];
+                results.forEach(({ first_name, last_name }) => {
+                    choiceArray.push(`${first_name} ${last_name}`);
+                });
+                return choiceArray;
+            },
+        }).then(answers => {
+            connection.query(`DELETE FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`, answers.employee, (err) => {
+                if (err) {
+                    throw err
+                } else {
+                    console.log("Employee successfully deleted")
+                    viewEmployees()
+                    start()
+                }
+            })
+        })
+    })
+}
+
 
 connection.connect((err) => {
     if (err) throw err;
