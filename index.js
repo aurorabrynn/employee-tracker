@@ -1,5 +1,8 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
+const EventEmitter = require('events');
+const emitter = new EventEmitter()
+emitter.setMaxListeners(0)
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -129,7 +132,6 @@ const addDepartment = () => {
             } else {
                 console.log("Department successfully added")
                 viewDepartments()
-                start()
             }
         })
     })
@@ -174,7 +176,6 @@ const addRole = () => {
                         } else {
                             console.log("Role successfully added")
                             viewRoles()
-                            start()
                         }
                     })
                 }
@@ -249,7 +250,6 @@ const addEmployee = () => {
                                                     if (err) throw err;
                                                     console.log('Employee successfully added');
                                                     viewEmployees()
-                                                    start();
                                                 })
                                         }
                                     })
@@ -311,7 +311,7 @@ const updateRoles = () => {
                                             (err) => {
                                                 if (err) throw err;
                                                 console.log('Role successfully updated');
-                                                start();
+                                                viewEmployees()
                                             })
                                     }
                                 })
@@ -345,7 +345,6 @@ const deleteDepartment = () => {
                 } else {
                     console.log("Department successfully deleted")
                     viewDepartments()
-                    start()
                 }
             })
         })
@@ -373,7 +372,6 @@ const deleteRole = () => {
                 } else {
                     console.log("Role successfully deleted")
                     viewRoles()
-                    start()
                 }
             })
         })
@@ -401,7 +399,6 @@ const deleteEmployee = () => {
                 } else {
                     console.log("Employee successfully deleted")
                     viewEmployees()
-                    start()
                 }
             })
         })
