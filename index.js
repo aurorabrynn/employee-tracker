@@ -13,6 +13,8 @@ const connection = mysql.createConnection({
     // Your password
     password: 'password',
     database: 'employee_DB',
+
+    multipleStatements: true
 });
 
 const start = () => {
@@ -148,7 +150,6 @@ const addRole = () => {
                 }
             }
         ]).then(answers => {
-            //answers.dep needs to connect to department_id
             connection.query(`SELECT id FROM department WHERE name=?`, answers.dep, (err, data) => {
                 if (err) {
                     throw err
@@ -173,7 +174,7 @@ const addRole = () => {
 
 
 const addEmployee = () => {
-    connection.query(`SELECT * FROM employee, role;`, (err, results) => {
+    connection.query(`SELECT * FROM role`, (err, results) => {
         if (err) throw err;
         inquirer.prompt([
             {
@@ -197,57 +198,60 @@ const addEmployee = () => {
                     });
                     return choiceArray;
                 },
-            },
-            {
-                name: "manager",
-                type: "list",
-                message: "Who is the employee's manager?",
-                choices() {
-                    const choiceArray = ['None'];
-                    results.forEach(({ first_name, last_name }) => {
-                        choiceArray.push(`${first_name} ${last_name}`);
-                    });
-                    return choiceArray;
-                },
-            },
-        ]).then(answers => {
-            if (answers.manager === 'None') {
-                answers.manager === 'null'
-            }
-            console.log(answers.manager);
-            connection.query(`SELECT id FROM role WHERE title=?`, answers.role, (err, data) => {
-                if (err) {
-                    throw err
-                } else {
-                    let foo = JSON.stringify(data[0].id)
-                    connection.query(`SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`, answers.manager, (err, data) => {
-                        if (err) {
-                            throw err
-                        } else {
-                            let bar = JSON.stringify(data[0].id)
-                            //answers.manager needs to connect to manager_id
-                            connection.query(
-                                `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
-                            VALUES (? ? ? ?);`,
-                                [answers.firstName, answers.lastName, foo, bar],
-                                (err) => {
-                                    if (err) throw err;
-                                    console.log('Employee successfully added');
-                                    viewEmployees()
-                                    start();
-                                }
-                            )
-                        }
-                    })
+            }]).then(response => {
+                connection.query(`SELECT id FROM role WHERE title=?`, response.role, (err, data) => {
+                    if (err) {
+                        throw err
+                    } else {
+                        let foo = JSON.stringify(data[0].id)
+                        connection.query(`SELECT * FROM employee`, (err, results) => {
+                            if (err) throw err;
+                            inquirer.prompt([
+                                {
+                                    name: "manager",
+                                    type: "list",
+                                    message: "Who is the employee's manager?",
+                                    choices() {
+                                        const choiceArray = ['None'];
+                                        results.forEach(({ first_name, last_name }) => {
+                                            choiceArray.push(`${first_name} ${last_name}`);
+                                        });
+                                        return choiceArray;
+                                    },
+                                }]).then(answers => {
+                                    connection.query(`SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`, answers.manager, (err, data) => {
+                                        if (err) {
+                                            throw err
+                                        } else {
+                                            if (answers.manager !== 'None') {
+                                                bar = JSON.stringify(data[0].id)
+                                            } else {
+                                                bar = null
+                                            }
+                                            console.log(bar)
+                                            connection.query(
+                                                `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
+                            VALUES (?, ?, ?, ?)`,
+                                                [response.firstName, response.lastName, foo, bar],
+                                                (err) => {
+                                                    if (err) throw err;
+                                                    console.log('Employee successfully added');
+                                                    viewEmployees()
+                                                    start();
+                                                })
+                                        }
+                                    })
 
-                }
+                                })
+                        })
+                    }
+                })
             })
-        })
     })
 }
 
 const updateRoles = () => {
-    connection.query(`SELECT * FROM employee, role`, (err, results) => {
+    connection.query(`SELECT * FROM employee`, (err, results) => {
         if (err) throw err;
         inquirer.prompt([
             {
@@ -261,46 +265,50 @@ const updateRoles = () => {
                     });
                     return choiceArray;
                 },
-            },
-            {
-                name: "role",
-                type: "list",
-                message: "What is the employee's new role?",
-                choices() {
-                    const choiceArray = [];
-                    results.forEach(({ title }) => {
-                        choiceArray.push(title);
-                    });
-                    return choiceArray;
-                },
-            }
-        ]).then(answers => {
-            //answers.role needs to connect to role_id
-            connection.query(`SELECT id FROM role WHERE title=?`, answers.role, (err, data) => {
-                if (err) {
-                    throw err
-                } else {
-                    let foo = JSON.stringify(data[0].id)
-                    console.log(foo)
-                    //answers.name needs to connect to id
-                    connection.query(`SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`, answers.manager, (err, data) => {
-                        if (err) {
-                            throw err
-                        } else {
-                            let bar = JSON.stringify(data[0].id)
-                            connection.query(
-                                `UPDATE employee SET role = ? WHERE id = ?`,
-                                [foo, bar],
-                                (err) => {
-                                    if (err) throw err;
-                                    console.log('Role successfully updated');
-                                    start();
+            }]).then(response => {
+                connection.query(`SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`, response.name, (err, data) => {
+                    if (err) {
+                        throw err
+                    } else {
+                        let foo = JSON.stringify(data[0].id)
+                        connection.query(`SELECT * FROM role`, (err, results) => {
+                            if (err) throw err;
+                            inquirer.prompt([
+                                {
+                                    name: "role",
+                                    type: "list",
+                                    message: "What is the employee's new role?",
+                                    choices() {
+                                        const choiceArray = [];
+                                        results.forEach(({ title }) => {
+                                            choiceArray.push(title);
+                                        });
+                                        return choiceArray;
+                                    },
+                                }
+                            ]).then(answers => {
+                                //answers.role needs to connect to role_id
+                                connection.query(`SELECT id FROM role WHERE title=?`, answers.role, (err, data) => {
+                                    if (err) {
+                                        throw err
+                                    } else {
+                                        let bar = JSON.stringify(data[0].id)
+                                        connection.query(
+                                            `UPDATE employee SET role_id = ? WHERE id = ?`,
+                                            [bar, foo],
+                                            (err) => {
+                                                if (err) throw err;
+                                                console.log('Role successfully updated');
+                                                start();
+                                            })
+                                    }
                                 })
-                        }
-                    })
-                }
+
+                            })
+                        })
+                    }
+                })
             })
-        })
     })
 }
 
