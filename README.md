@@ -1,4 +1,5 @@
 # Employee-Tracker
+![badge](https://img.shields.io/badge/license-MIT-green)
 
 ## Description
 If you have a lot of employees, their roles and who they report to can be confusing and can be easily mixed up. Having a tracker like this can be very helpful in keeping track of your employees. It can also allow the empolyer to edit, add, and delete any information easily without any coding knowledge.
@@ -10,3 +11,6 @@ I learned how to string together different connection.queries and was able solid
 
 ## Link
 <a href="https://aurorabrynn.github.io/employee-tracker/">Github Link</a>
+
+## License
+<a href="./LICENSE.txt">License</a>
