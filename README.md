@@ -7,7 +7,7 @@ If you have a lot of employees, their roles and who they report to can be confus
 I learned how to string together different connection.queries and was able solidify how to use SQL in my head.
 
 ## Video
-[Video Walkthrough](https://github.com/aurorabrynn/E-Commerce/files/6688816/employee-tracker.zip)
+[Video Walkthrough](https://github.com/aurorabrynn/employee-tracker/files/6688823/employee-tracker.zip)
 
 ## Link
 <a href="https://aurorabrynn.github.io/employee-tracker/">Github Link</a>
